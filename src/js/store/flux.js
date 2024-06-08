@@ -16,19 +16,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 				fetch(`https://playground.4geeks.com/contact/agendas/Yussef/contacts/${iDToDelete}`, { method: 'DELETE' })
 					.then(() => getActions().getContacts())
 			},
-			findMyUser: () => {
-				fetch("https://playground.4geeks.com/contact/agendas?offset=0&limit=100")
-					.then((response) => response.json())
-					.then(data => {
-						const userExist = data.agendas.find(user => user.slug === "Yussef")
-						if (!userExist) {
-							fetch(`https://playground.4geeks.com/contact/agendas/Yussef`, { method: 'POST' })
-								.then((response) => response.json())
-								.then(console.log("Usuario Creado"))
-								.then(() => getActions().getContacts())
-						} else console.log("El usuario ya existe");
-					})
+			findMyUser: async () => {
+				try {
+					const response = await fetch("https://playground.4geeks.com/contact/agendas?offset=0&limit=100");
+					const data = await response.json();
+					const userExist = data.agendas.find(user => user.slug === "Yussef");
+
+					if (!userExist) {
+						const createResponse = await fetch(`https://playground.4geeks.com/contact/agendas/Yussef`, { method: 'POST' });
+						await createResponse.json();
+						console.log("Usuario Creado");
+					} else {
+						console.log("El usuario ya existe");
+					}
+				} catch (error) {
+					console.error("Error finding user:", error);
+				}
 			},
+
 			addContactsAPI: (name, phone, email, address) => {
 				const requestOptions = {
 					method: 'POST',
@@ -68,7 +73,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			setEditing: (value) => {
 				setStore({ editing: value });
 			},
-			loadSomeData: () => {
+			loadSomeData: async () => {
 
 				getActions().findMyUser()
 				getActions().getContacts();
