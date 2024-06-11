@@ -74,10 +74,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 				setStore({ editing: value });
 			},
 			loadSomeData: async () => {
-
-				getActions().findMyUser()
-				getActions().getContacts();
+				try {
+					await getActions().findMyUser();
+					await getActions().getContacts();
+				} catch (error) {
+					console.error("Error loading data:", error);
+				}
 			},
+
 		}
 	};
 };
